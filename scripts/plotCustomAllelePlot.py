@@ -23,7 +23,7 @@ def main():
     parser.add_argument("-f","--CRISPResso2_folder",type=str,help="CRISPResso output folder containing finished analysis",required=True)
     parser.add_argument("-o","--output_root",type=str,help="Plot output root (should not include '.pdf' or '.png')",required=True)
     parser.add_argument("--min_freq","--min_frequency_alleles_around_cut_to_plot",type=float,help="Minimum frequency of alleles to plot")
-    parser.add_argument("--max_rows","--max_rows_alleles_around_cut_to_plot",type=float,help="Maximum number of rows to plot")
+    parser.add_argument("--max_rows","--max_rows_alleles_around_cut_to_plot",type=int,help="Maximum number of rows to plot")
     parser.add_argument("--plot_cut_point",help="If set, a line at the cut point will be plotted.",action="store_true")
     parser.add_argument("--save_png",help="If set, pngs will also be produced (as well as pdfs).",action="store_true")
     parser.add_argument("--plot_left",help="Number of bases to plot to the left of the cut site",type=int,default=20)
@@ -39,7 +39,7 @@ def arrStr_to_arr(val):
 
 def get_row_around_cut_assymetrical(row,cut_point,plot_left,plot_right):
     cut_idx=row['ref_positions'].index(cut_point)
-    return row['Aligned_Sequence'][cut_idx-plot_left+1:cut_idx+plot_right+1],row['Reference_Sequence'][cut_idx-plot_left+1:cut_idx+plot_right+1],row['Read_Status']=='UNMODIFIED',row['n_deleted'],row['n_inserted'],row['n_mutated'],row['#Reads'], row['%Reads']
+    return row['Aligned_Reference_Names'],row['Aligned_Sequence'][cut_idx-plot_left+1:cut_idx+plot_right+1],row['Reference_Sequence'][cut_idx-plot_left+1:cut_idx+plot_right+1],row['Read_Status']=='UNMODIFIED',row['n_deleted'],row['n_inserted'],row['n_mutated'],row['#Reads'], row['%Reads']
 
 def get_dataframe_around_cut_assymetrical(df_alleles, cut_point,plot_left,plot_right,collapse_by_sequence=True):
     if df_alleles.shape[0] == 0:
@@ -50,9 +50,9 @@ def get_dataframe_around_cut_assymetrical(df_alleles, cut_point,plot_left,plot_r
         raise(BadParameterException('The plotting window cannot extend past the end of the amplicon. Amplicon length is ' + str(len(ref1)) + ' but plot extends to ' + str(cut_point+plot_right+1)))
 
     df_alleles_around_cut=pd.DataFrame(list(df_alleles.apply(lambda row: get_row_around_cut_assymetrical(row,cut_point,plot_left,plot_right),axis=1).values),
-                    columns=['Aligned_Sequence','Reference_Sequence','Unedited','n_deleted','n_inserted','n_mutated','#Reads','%Reads'])
+                    columns=['Aligned_Reference_Names', 'Aligned_Sequence','Reference_Sequence','Unedited','n_deleted','n_inserted','n_mutated','#Reads','%Reads'])
 
-    df_alleles_around_cut=df_alleles_around_cut.groupby(['Aligned_Sequence','Reference_Sequence','Unedited','n_deleted','n_inserted','n_mutated']).sum().reset_index().set_index('Aligned_Sequence')
+    df_alleles_around_cut=df_alleles_around_cut.groupby(['Aligned_Reference_Names','Aligned_Sequence','Reference_Sequence','Unedited','n_deleted','n_inserted','n_mutated']).sum().reset_index().set_index('Aligned_Sequence')
 
     df_alleles_around_cut.sort_values(by='%Reads',inplace=True,ascending=False)
     df_alleles_around_cut['Unedited']=df_alleles_around_cut['Unedited']>0
@@ -112,6 +112,8 @@ def plot_alleles_tables_from_folder(crispresso_output_folder,fig_filename_root,p
             ref_seq_around_cut=refs[ref_name]['sequence'][cut_point-plot_left+1:cut_point+plot_right+1]
 
             df_alleles_around_cut=get_dataframe_around_cut_assymetrical(df_alleles, cut_point, plot_left, plot_right)
+            if ref_name != 'Reference':
+                df_alleles_around_cut = df_alleles_around_cut[df_alleles_around_cut['Aligned_Reference_Names'] == ref_name]
             this_allele_count = len(df_alleles_around_cut.index)
             if this_allele_count < 1:
                 print('No reads found for ' + ref_name)
@@ -155,7 +157,7 @@ def plot_alleles_tables_from_folder(crispresso_output_folder,fig_filename_root,p
                     new_sgRNA_intervals += [(int_start - new_sel_cols_start - 1,int_end - new_sel_cols_start - 1)]
 
                 fig_filename_root = fig_filename_root+"_"+ref_name+"_"+sgRNA_label
-                plot_alleles_table(ref_seq_around_cut,df_alleles=df_alleles_around_cut,fig_filename_root=fig_filename_root,cut_point_ind=cut_point-new_sel_cols_start, MIN_FREQUENCY=MIN_FREQUENCY,MAX_N_ROWS=MAX_N_ROWS,SAVE_ALSO_PNG=SAVE_ALSO_PNG,plot_cut_point=plot_cut_point,sgRNA_intervals=new_sgRNA_intervals,sgRNA_names=sgRNA_names,sgRNA_mismatches=sgRNA_mismatches,annotate_wildtype_allele=crispresso2_info['args'].annotate_wildtype_allele)
+                plot_alleles_table(ref_seq_around_cut,df_alleles=df_alleles_around_cut,fig_filename_root=fig_filename_root,cut_point_ind=cut_point-new_sel_cols_start, MIN_FREQUENCY=MIN_FREQUENCY,MAX_N_ROWS=MAX_N_ROWS,SAVE_ALSO_PNG=SAVE_ALSO_PNG,plot_cut_point=plot_cut_point,sgRNA_intervals=new_sgRNA_intervals,sgRNA_names=sgRNA_names,sgRNA_mismatches=sgRNA_mismatches,annotate_wildtype_allele=crispresso2_info['running_info']['args'].annotate_wildtype_allele)
 
                 plot_count += 1
     print('Plotted ' + str(plot_count) + ' plots')
