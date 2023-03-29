@@ -120,19 +120,20 @@ def plot_alleles_tables_from_folder(crispresso_output_folder, fig_filename_root,
     ref_names = crispresso2_info['results']['ref_names']
     refs = crispresso2_info['results']['refs']
     for ref_name in ref_names + ["All"]:
-        sgRNA_sequences = refs[ref_name]['sgRNA_sequences']
-        sgRNA_cut_points = refs[ref_name]['sgRNA_cut_points']
-        sgRNA_plot_cut_points = refs[ref_name]['sgRNA_plot_cut_points']
-        sgRNA_names = refs[ref_name]['sgRNA_names']
-        sgRNA_mismatches = refs[ref_name]['sgRNA_mismatches']
-        sgRNA_plot_idxs = refs[ref_name]['sgRNA_plot_idxs']
+        r = ref_name if ref_name != "All" else "Reference"
+
+        sgRNA_sequences = refs[r]['sgRNA_sequences']
+        sgRNA_cut_points = refs[r]['sgRNA_cut_points']
+        sgRNA_plot_cut_points = refs[r]['sgRNA_plot_cut_points']
+        sgRNA_names = refs[r]['sgRNA_names']
+        sgRNA_mismatches = refs[r]['sgRNA_mismatches']
 
         if plot_center is not None:
             sgRNA_label = 'custom'
 
             cut_point = plot_center
             plot_cut_point = plot_center
-            ref_seq_around_cut = refs[ref_name]['sequence'][cut_point - plot_left + 1:cut_point + plot_right + 1]
+            ref_seq_around_cut = refs[r]['sequence'][cut_point - plot_left + 1:cut_point + plot_right + 1]
 
             df_alleles_around_cut = get_dataframe_around_cut_assymetrical(df_alleles, cut_point, plot_left, plot_right)
             if ref_name != 'All':
@@ -148,10 +149,10 @@ def plot_alleles_tables_from_folder(crispresso_output_folder, fig_filename_root,
             new_sgRNA_intervals = []
             # adjust coordinates of sgRNAs
             new_sel_cols_start = cut_point - plot_left
-            for (int_start, int_end) in refs[ref_name]['sgRNA_intervals']:
+            for (int_start, int_end) in refs[r]['sgRNA_intervals']:
                 new_sgRNA_intervals += [(int_start - new_sel_cols_start - 1, int_end - new_sel_cols_start - 1)]
 
-            filename_root = fig_filename_root + "_" + ref_name + "_" + sgRNA_label
+            filename_root = fig_filename_root + "_" + r + "_" + sgRNA_label
             plot_alleles_table(ref_seq_around_cut, df_alleles=df_alleles_around_cut,
                                fig_filename_root=filename_root, cut_point_ind=cut_point - new_sel_cols_start,
                                MIN_FREQUENCY=MIN_FREQUENCY, MAX_N_ROWS=MAX_N_ROWS, SAVE_ALSO_PNG=SAVE_ALSO_PNG,
@@ -169,8 +170,7 @@ def plot_alleles_tables_from_folder(crispresso_output_folder, fig_filename_root,
 
                 cut_point = sgRNA_cut_points[ind]
                 plot_cut_point = sgRNA_plot_cut_points[ind]
-                plot_idxs = sgRNA_plot_idxs[ind]
-                ref_seq_around_cut = refs[ref_name]['sequence'][cut_point - plot_left + 1:cut_point + plot_right + 1]
+                ref_seq_around_cut = refs[r]['sequence'][cut_point - plot_left + 1:cut_point + plot_right + 1]
 
                 df_alleles_around_cut = get_dataframe_around_cut_assymetrical(df_alleles, cut_point, plot_left,
                                                                               plot_right)
@@ -187,7 +187,7 @@ def plot_alleles_tables_from_folder(crispresso_output_folder, fig_filename_root,
                 for (int_start, int_end) in refs[ref_name]['sgRNA_intervals']:
                     new_sgRNA_intervals += [(int_start - new_sel_cols_start - 1, int_end - new_sel_cols_start - 1)]
 
-                filename_root = fig_filename_root + "_" + ref_name + "_" + sgRNA_label
+                filename_root = fig_filename_root + "_" + r + "_" + sgRNA_label
                 plot_alleles_table(ref_seq_around_cut, df_alleles=df_alleles_around_cut,
                                    fig_filename_root=filename_root, cut_point_ind=cut_point - new_sel_cols_start,
                                    MIN_FREQUENCY=MIN_FREQUENCY, MAX_N_ROWS=MAX_N_ROWS, SAVE_ALSO_PNG=SAVE_ALSO_PNG,
