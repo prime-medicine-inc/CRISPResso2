@@ -152,7 +152,7 @@ def plot_alleles_tables_from_folder(crispresso_output_folder, fig_filename_root,
             for (int_start, int_end) in refs[r]['sgRNA_intervals']:
                 new_sgRNA_intervals += [(int_start - new_sel_cols_start - 1, int_end - new_sel_cols_start - 1)]
 
-            filename_root = fig_filename_root + "_" + r + "_" + sgRNA_label
+            filename_root = fig_filename_root + "_" + ref_name + "_" + sgRNA_label
             plot_alleles_table(ref_seq_around_cut, df_alleles=df_alleles_around_cut,
                                fig_filename_root=filename_root, cut_point_ind=cut_point - new_sel_cols_start,
                                MIN_FREQUENCY=MIN_FREQUENCY, MAX_N_ROWS=MAX_N_ROWS, SAVE_ALSO_PNG=SAVE_ALSO_PNG,
@@ -187,7 +187,7 @@ def plot_alleles_tables_from_folder(crispresso_output_folder, fig_filename_root,
                 for (int_start, int_end) in refs[ref_name]['sgRNA_intervals']:
                     new_sgRNA_intervals += [(int_start - new_sel_cols_start - 1, int_end - new_sel_cols_start - 1)]
 
-                filename_root = fig_filename_root + "_" + r + "_" + sgRNA_label
+                filename_root = fig_filename_root + "_" + ref_name + "_" + sgRNA_label
                 plot_alleles_table(ref_seq_around_cut, df_alleles=df_alleles_around_cut,
                                    fig_filename_root=filename_root, cut_point_ind=cut_point - new_sel_cols_start,
                                    MIN_FREQUENCY=MIN_FREQUENCY, MAX_N_ROWS=MAX_N_ROWS, SAVE_ALSO_PNG=SAVE_ALSO_PNG,
