@@ -31,8 +31,7 @@ def main():
                         help="Minimum frequency of alleles to plot")
     parser.add_argument("--max_rows", "--max_rows_alleles_around_cut_to_plot", type=int,
                         help="Maximum number of rows to plot")
-    parser.add_argument("--plot_cut_point", help="If set, a line at the cut point will be plotted.",
-                        action="store_true")
+
     parser.add_argument("--save_png", help="If set, pngs will also be produced (as well as pdfs).", action="store_true")
     parser.add_argument("--plot_left", help="Number of bases to plot to the left of the cut site", type=int, default=20)
     parser.add_argument("--plot_right", help="Number of bases to plot to the right of the cut site", type=int,
@@ -43,8 +42,7 @@ def main():
 
     args = parser.parse_args()
     plot_alleles_tables_from_folder(args.CRISPResso2_folder, args.output_root, MIN_FREQUENCY=args.min_freq,
-                                    MAX_N_ROWS=args.max_rows, SAVE_ALSO_PNG=args.save_png,
-                                    plot_cut_point=args.plot_cut_point, plot_left=args.plot_left,
+                                    MAX_N_ROWS=args.max_rows, SAVE_ALSO_PNG=args.save_png, plot_left=args.plot_left,
                                     plot_right=args.plot_right, plot_center=args.plot_center)
 
 
@@ -60,7 +58,7 @@ def get_row_around_cut_assymetrical(row, cut_point, plot_left, plot_right):
            row['%Reads']
 
 
-def get_dataframe_around_cut_assymetrical(df_alleles, cut_point, plot_left, plot_right, collapse_by_sequence=True):
+def get_dataframe_around_cut_assymetrical(df_alleles, cut_point, plot_left, plot_right):
     if df_alleles.shape[0] == 0:
         return df_alleles
     ref1 = df_alleles['Reference_Sequence'].iloc[0]
