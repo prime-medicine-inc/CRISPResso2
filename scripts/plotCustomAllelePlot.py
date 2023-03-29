@@ -121,7 +121,7 @@ def plot_alleles_tables_from_folder(crispresso_output_folder, fig_filename_root,
 
     ref_names = crispresso2_info['results']['ref_names']
     refs = crispresso2_info['results']['refs']
-    for ref_name in ref_names:
+    for ref_name in ref_names + ["All"]:
         sgRNA_sequences = refs[ref_name]['sgRNA_sequences']
         sgRNA_cut_points = refs[ref_name]['sgRNA_cut_points']
         sgRNA_plot_cut_points = refs[ref_name]['sgRNA_plot_cut_points']
@@ -137,7 +137,7 @@ def plot_alleles_tables_from_folder(crispresso_output_folder, fig_filename_root,
             ref_seq_around_cut = refs[ref_name]['sequence'][cut_point - plot_left + 1:cut_point + plot_right + 1]
 
             df_alleles_around_cut = get_dataframe_around_cut_assymetrical(df_alleles, cut_point, plot_left, plot_right)
-            if ref_name != 'Reference':
+            if ref_name != 'All':
                 df_alleles_around_cut = df_alleles_around_cut[
                     df_alleles_around_cut['Aligned_Reference_Names'] == ref_name]
             this_allele_count = len(df_alleles_around_cut.index)
@@ -153,9 +153,9 @@ def plot_alleles_tables_from_folder(crispresso_output_folder, fig_filename_root,
             for (int_start, int_end) in refs[ref_name]['sgRNA_intervals']:
                 new_sgRNA_intervals += [(int_start - new_sel_cols_start - 1, int_end - new_sel_cols_start - 1)]
 
-            fig_filename_root = fig_filename_root + "_" + ref_name + "_" + sgRNA_label
+            filename_root = fig_filename_root + "_" + ref_name + "_" + sgRNA_label
             plot_alleles_table(ref_seq_around_cut, df_alleles=df_alleles_around_cut,
-                               fig_filename_root=fig_filename_root, cut_point_ind=cut_point - new_sel_cols_start,
+                               fig_filename_root=filename_root, cut_point_ind=cut_point - new_sel_cols_start,
                                MIN_FREQUENCY=MIN_FREQUENCY, MAX_N_ROWS=MAX_N_ROWS, SAVE_ALSO_PNG=SAVE_ALSO_PNG,
                                plot_cut_point=plot_cut_point, sgRNA_intervals=new_sgRNA_intervals,
                                sgRNA_names=sgRNA_names, sgRNA_mismatches=sgRNA_mismatches,
@@ -189,9 +189,9 @@ def plot_alleles_tables_from_folder(crispresso_output_folder, fig_filename_root,
                 for (int_start, int_end) in refs[ref_name]['sgRNA_intervals']:
                     new_sgRNA_intervals += [(int_start - new_sel_cols_start - 1, int_end - new_sel_cols_start - 1)]
 
-                fig_filename_root = fig_filename_root + "_" + ref_name + "_" + sgRNA_label
+                filename_root = fig_filename_root + "_" + ref_name + "_" + sgRNA_label
                 plot_alleles_table(ref_seq_around_cut, df_alleles=df_alleles_around_cut,
-                                   fig_filename_root=fig_filename_root, cut_point_ind=cut_point - new_sel_cols_start,
+                                   fig_filename_root=filename_root, cut_point_ind=cut_point - new_sel_cols_start,
                                    MIN_FREQUENCY=MIN_FREQUENCY, MAX_N_ROWS=MAX_N_ROWS, SAVE_ALSO_PNG=SAVE_ALSO_PNG,
                                    plot_cut_point=plot_cut_point, sgRNA_intervals=new_sgRNA_intervals,
                                    sgRNA_names=sgRNA_names, sgRNA_mismatches=sgRNA_mismatches,
@@ -381,7 +381,6 @@ def plot_alleles_heatmap(reference_seq, fig_filename_root, X, annot, y_labels, i
             matplotlib.lines.Line2D([0], [1], linestyle='--', c='black', ms=6))
         descriptions.append('Predicted cleavage position')
 
-    # ax_hm_ref.legend(proxies, descriptions, numpoints=1, markerscale=2, loc='center', bbox_to_anchor=(0.5, 4),ncol=1)
     lgd = ax_hm.legend(proxies, descriptions, numpoints=1, markerscale=2, loc='upper center', bbox_to_anchor=(0.5, 0),
                        ncol=1, fancybox=True, shadow=False)
 
